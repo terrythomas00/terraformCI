@@ -63,6 +63,19 @@ resource "azurerm_network_interface" "terraform-nic" {
   }
 }
 
+resource "tls_private_key" "ssh_key" {
+  algorithm = "RSA"
+  rsa_bits = 4096
+}
+
+resource "local_file" "private_key" {
+  content         = tls_private_key.ssh_key.private_key_pem
+  filename        = "${path.module}/id_rsa"
+  file_permission = "0600"
+}
+
+
+
 resource "azurerm_linux_virtual_machine" "vm-example" {
   name                = "terraform-machine"
   resource_group_name = azurerm_resource_group.dev_group.name
@@ -74,8 +87,8 @@ resource "azurerm_linux_virtual_machine" "vm-example" {
   ]
 
   admin_ssh_key {
-    username   = "adminuser"
-    public_key = file("~/.ssh/id_rsa.pub")
+    username   = "azureuser"
+    public_key = tls_private_key.ssh_key.public_key_openssh
   }
 
   os_disk {
