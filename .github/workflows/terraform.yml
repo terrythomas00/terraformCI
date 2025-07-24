@@ -74,9 +74,9 @@ jobs:
       with:
         terraform_version 4.35.0
 
-    -name: Azure Login
-     uses: azure/login@v1
-     with:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
