@@ -65,7 +65,7 @@ resource "azurerm_network_interface" "terraform-nic" {
 
 resource "tls_private_key" "ssh_key" {
   algorithm = "RSA"
-  rsa_bits = 4096
+  rsa_bits  = 4096
 }
 
 resource "local_file" "private_key" {
