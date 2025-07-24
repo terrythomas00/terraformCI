@@ -35,3 +35,58 @@ resource "azurerm_storage_account" "storage" {
   account_replication_type = "LRS"
 
 }
+
+
+resource "azurerm_virtual_network" "terraform-vnet1" {
+  name                = "terraform-networkv1"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.dev_group.location
+  resource_group_name = azurerm_resource_group.dev_group.name
+}
+
+resource "azurerm_subnet" "terraform-subnet1" {
+  name                 = "tf-internal-subnet"
+  resource_group_name  = azurerm_resource_group.dev_group.name
+  virtual_network_name = azurerm_virtual_network.terraform-vnet1.name
+  address_prefixes     = ["10.0.2.0/24"]
+}
+
+resource "azurerm_network_interface" "terraform-nic" {
+  name                = "terraform1-nic"
+  location            = azurerm_resource_group.terraform-subnet1.location
+  resource_group_name = azurerm_resource_group.dev_group.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.example.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_linux_virtual_machine" "vm-example" {
+  name                = "terraform-machine"
+  resource_group_name = azurerm_resource_group.dev_group.name
+  location            = azurerm_resource_group.dev_group.location
+  size                = "Standard_A2_v2"
+  admin_username      = "adminuser"
+  network_interface_ids = [
+    azurerm_network_interface.example.id,
+  ]
+
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("~/.ssh/id_rsa.pub")
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
+    version   = "latest"
+  }
+}
