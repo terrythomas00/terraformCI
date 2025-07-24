@@ -53,12 +53,12 @@ resource "azurerm_subnet" "terraform-subnet1" {
 
 resource "azurerm_network_interface" "terraform-nic" {
   name                = "terraform1-nic"
-  location            = azurerm_resource_group.terraform-subnet1.location
+  location            = azurerm_resource_group.dev_group.location
   resource_group_name = azurerm_resource_group.dev_group.name
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.example.id
+    subnet_id                     = azurerm_subnet.terraform-subnet1.id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -70,7 +70,7 @@ resource "azurerm_linux_virtual_machine" "vm-example" {
   size                = "Standard_A2_v2"
   admin_username      = "adminuser"
   network_interface_ids = [
-    azurerm_network_interface.example.id,
+    azurerm_network_interface.terraform-nic.id,
   ]
 
   admin_ssh_key {
