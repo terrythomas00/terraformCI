@@ -72,7 +72,12 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
-        cli_config_credentials_token: ${{ secrets.AZURE_CREDENTIALS }}
+        terraform_version 4.35.0
+
+    -name: Azure Login
+     uses: azure/login@v1
+     with:
+       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
